@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>VLADOS KRUTIT – Панель</title>
+  <style>
+    body { background:#222; color:#eee; font-family:sans-serif; padding:20px; }
+    label { display:block; margin-top:10px; }
+    input { width:100%; padding:5px; margin-top:5px; }
+    button { margin-top:15px; padding:8px 12px; background:#ffcc00; border:none; cursor:pointer; }
+    a { color:#ffcc00; text-decoration:none; display:inline-block; margin-top:15px; }
+  </style>
+</head>
+<body>
+  <h1>VLADOS KRUTIT – Панель</h1>
+  <form id="cfgForm">
+    <label>Ссылка (URL):<input id="url" required></label>
+    <label>Время работы (мин):<input id="workMins" type="number" min="1" required></label>
+    <label>Задержка обновления (сек):<input id="reloadDelay" type="number" min="1" required></label>
+    <label><input id="active" type="checkbox"> Активно</label>
+    <button type="submit">💾 Сохранить</button>
+  </form>
+  <a href="/stats" target="_blank">📊 Посмотреть статистику</a>
+
+  <script>
+    // Load config
+    fetch("/bot-config")
+      .then(r => r.json())
+      .then(cfg => {
+        url.value = cfg.url || "";
+        workMins.value = cfg.workMins || 60;
+        reloadDelay.value = cfg.reloadDelay || 10;
+        active.checked = cfg.active;
+      });
+
+    // Submit changes
+    document.getElementById("cfgForm").onsubmit = e => {
+      e.preventDefault();
+      const body = {
+        url: url.value,
+        workMins: +workMins.value,
+        reloadDelay: +reloadDelay.value,
+        active: active.checked
+      };
+      fetch("/update-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }).then(() => alert("Сохранено!"));
+    };
+  </script>
+</body>
+</html>
